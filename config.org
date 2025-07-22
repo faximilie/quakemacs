@@ -1,0 +1,127 @@
+#+title: QuakEmacs
+#+description: A doom emacs config
+
+
+* Org
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(use-package! pretty-hydra
+  :after hydra)
+#+end_src
+** Packages
+#+begin_src emacs-lisp
+(use-package! org-web-tools
+  :after org
+  :commands org-web-tools--url-as-readable-org)
+
+
+(use-package! org-transclusion
+ :after org
+ :init
+ (map!
+  :leader
+  :prefix "n"
+  :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+#+end_src
+** Files and directories
+#+begin_src emacs-lisp
+(use-package! org
+  :init
+  (setq org-directory "~/Documents/Notes/")
+  (setq org-archive-location "~/Documents/Notes/Archive/%s_archive::")
+  (setq org-default-notes-file (concat org-directory "/inbox.org"))
+  (setq org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
+                             "IDEA(i)" "|" "DONE(d)" "KILL(k)"))))
+#+end_src
+
+** capture templates
+#+begin_src emacs-lisp
+(after! org
+  (setq org-capture-templates
+        '(("M" "Meeting minutes" entry
+           (file+olp+datetree "~/Documents/Notes/work.org" "Minutes")
+           "* NEXT %? - %U\n** Notes\n** Action items" :clock-in t :clock-resume t)
+          ("p" "Phone call" entry
+           (file+headline "~/Documents/Notes/inbox.org" "Phone")
+           "* PHONE %?  :PHONE:\n%U" :clock-in t :clock-resume t)
+          ("i" "Interruption" entry
+           (file+olp+datetree "~/Documents/Notes/journal.org" "Interruptions")
+           "* %?  \n%U" :clock-in t :clock-resume t)
+          ("t" "Task to be refiled later" entry
+           (file+headline "~/Documents/Notes/inbox.org" "Tasks")
+           "* TODO %?
+ %a" :clock-in t :clock-resume t)
+          ("I" "Ideas" entry
+           (file "~/Documents/Notes/Personal/ideas.org")
+           "* %?
+ %i")
+          ("s" "Snippets" entry
+           (file+headline "~/Documents/Notes/inbox.org" "Snippets")
+           "* %^{Title}
+Source: %u, %c
+ ,#+BEGIN_QUOTE
+%i
+,#+END_QUOTE
+[[%:link][%:description]]
+%?")
+          ("q" "Quotes" entry
+           (file+headline "~/Documents/Notes/inbox.org" "Quotes")
+           "* %:description
+:PROPERTIES:
+:URL: %:link
+:END:
+
+Source: %u, [[%:link][%:description]]
+,#+BEGIN_QUOTE
+%i
+,#+END_QUOTE
+%?")
+          ("b" "Bookmarks" entry
+           (file+headline "~/Documents/Notes/inbox.org" "Bookmarks")
+           "* %?[[%:link][%:description]]
+:PROPERTIES:
+:URL: %:link
+:END:
+Captured On: %U" :immediate-finish t)
+          ("j" "Journal Entries" entry
+           (file+olp+datetree "~/Documents/Notes/journal.org" "Personal")
+           "* %U - %^{Title}
+%i
+%?")
+          ("J" "Journal Entries" entry
+           (file+olp+datetree "~/Documents/Notes/journal.org" "Work")
+           "* %U - %^{Title}
+%i
+%?")
+          ("T" "TIL" entry
+           (file+olp+datetree "~/Documents/Notes/journal.org" "TIL")
+           "* %U - Today I learnt: %^{Title}
+%i
+Today I learned that %^{Title} %?")))
+  )
+#+end_src
+
+
+#+RESULTS:
+| M | Meeting minutes | entry | (file+olp+datetree ~/Documents/Notes/work.org Minutes) | * NEXT %? - %U |
+
+** Org roam
+#+begin_src emacs-lisp
+(use-package! org-roam
+  :after org
+  :config
+  (setq org-roam-capture-ref-templates
+        '(("w" "ref" plain "%(org-web-tools--url-as-readable-org \"${ref}\")"
+           :target (file+head "${slug}.org" "#+title: ${title}\n")
+           :unnarrowed t)))
+  )
+(use-package! zetteldesk
+  :after org-roam
+  :init
+  (add-load-path! "~/.config/emacs/.local/straight/repos/zetteldesk.el/")
+  :config
+  (zetteldesk-mode)
+  (require 'zetteldesk-info)
+  (require 'zetteldesk-remark))
+#+end_src
