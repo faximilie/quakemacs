@@ -1,18 +1,64 @@
 #+title: QuakEmacs
 #+description: A doom emacs config
 
+* Basic emacs stuff
+#+begin_src emacs-lisp :eval no-export :exports code
+(server-start)
+(setq display-line-numbers-type 'visual
+      fill-column 90
+      global-display-fill-column-indicator-mode t)
+
+(use-package! super-save
+
+  :config
+  (super-save-mode +1)
+  ;(define-advice super-save-command-advice (:after ())
+  ;  (org-roam-db-sync))
+
+  :custom
+  (super-save-auto-save-when-idle t)
+  (super-save-all-buffers t))
+
+#+end_src
+
+#+RESULTS:
+: t
+** Optimizations
+Shamelessly stolen from [[id:bea04db2-f6c2-4742-b35c-407b8ecea86d][My Literate Doom Emacs Configuration]]
+#+begin_src emacs-lisp :eval no-export :exports code
+;; (setq gc-cons-threshold (* 256 1024 1024)
+;;       read-process-output-max (* 4 1024 1024)
+;;       comp-deferred-compilation t
+;;       comp-async-jobs-number 8
+;;
+;;       ;; Garbage collector optimization
+;;       gcmh-idle-delay 5
+;;       gcmh-high-cons-threshold (* 1024 1024 1024)
+;;
+;;       ;; Version control optimization
+;;       vc-handled-backends '(Git)
+;;
+;;       ;; Speed up which key
+;;       which-key-idle-delay 0.2)
+#+end_src
 
 * Org
-#+begin_src emacs-lisp
-(setq display-line-numbers-type 'relative)
-(use-package! pretty-hydra
-  :after hydra)
-#+end_src
 ** Packages
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :eval no-export :exports code
+;;(defn org-web-tools-insert-web-page-as-body ())
 (use-package! org-web-tools
   :after org
-  :commands org-web-tools--url-as-readable-org)
+  :commands org-web-tools--url-as-readable-org
+  :hook ((org-capture-mode . (lambda () (org-map-entries
+                                         (lambda ()
+                                           (let* ((pom (point))
+                                                  (url (org-entry-get (org-element-at-point
+                                                                       pom)
+                                                                      "URL"))
+                                                 )
+                                                     (org-web-tools-archive-attach url)))
+                                         "URL={.}-ATTACH")
+                              ))))
 
 
 (use-package! org-transclusion
@@ -22,21 +68,25 @@
   :leader
   :prefix "n"
   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
+
+(use-package! org-protocol
+  :after org)
 #+end_src
+
 ** Files and directories
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :eval no-export :exports code
 (use-package! org
-  :init
-  (setq org-directory "~/Documents/Notes/")
-  (setq org-archive-location "~/Documents/Notes/Archive/%s_archive::")
-  (setq org-default-notes-file (concat org-directory "/inbox.org"))
-  (setq org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
+  :custom
+  (org-directory "~/Documents/Notes/")
+  (org-archive-location "~/Documents/Notes/Archive/%s_archive::")
+  (org-default-notes-file (concat org-directory "/inbox.org"))
+  (org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
+  (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
                              "IDEA(i)" "|" "DONE(d)" "KILL(k)"))))
 #+end_src
 
 ** capture templates
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :eval no-export :exports code
 (after! org
   (setq org-capture-templates
         '(("M" "Meeting minutes" entry
@@ -67,7 +117,7 @@ Source: %u, %c
 %?")
           ("q" "Quotes" entry
            (file+headline "~/Documents/Notes/inbox.org" "Quotes")
-           "* %:description
+           "* %?
 :PROPERTIES:
 :URL: %:link
 :END:
@@ -75,8 +125,7 @@ Source: %u, %c
 Source: %u, [[%:link][%:description]]
 ,#+BEGIN_QUOTE
 %i
-,#+END_QUOTE
-%?")
+,#+END_QUOTE")
           ("b" "Bookmarks" entry
            (file+headline "~/Documents/Notes/inbox.org" "Bookmarks")
            "* %?[[%:link][%:description]]
@@ -102,26 +151,38 @@ Today I learned that %^{Title} %?")))
   )
 #+end_src
 
-
 #+RESULTS:
 | M | Meeting minutes | entry | (file+olp+datetree ~/Documents/Notes/work.org Minutes) | * NEXT %? - %U |
 
+
 ** Org roam
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :eval no-export :exports code
 (use-package! org-roam
-  :after org
-  :config
-  (setq org-roam-capture-ref-templates
-        '(("w" "ref" plain "%(org-web-tools--url-as-readable-org \"${ref}\")"
-           :target (file+head "${slug}.org" "#+title: ${title}\n")
-           :unnarrowed t)))
+  :custom
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-ref-templates
+   '(("w" "ref" plain "%(replace- org-web-tools--url-as-readable-org \"${ref}\")"
+      :target (file+head "${slug}.org" "#+title: ${title}\n")
+      :unnarrowed t)))
+  (org-roam-directory (file-name-concat org-directory "Wiki"))
+  (org-roam-dailies-directory "../Journal")
   )
-(use-package! zetteldesk
-  :after org-roam
-  :init
-  (add-load-path! "~/.config/emacs/.local/straight/repos/zetteldesk.el/")
-  :config
-  (zetteldesk-mode)
-  (require 'zetteldesk-info)
-  (require 'zetteldesk-remark))
+(use-package! org-roam-protocol)
+(use-package! websocket
+  :ensure t)
+
+(use-package! org-roam-ui
+  :after org-roam ;; or :after org
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
 #+end_src
+
+#+RESULTS:
+: org-roam-ui
