@@ -1,6 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
+(package! super-save)
 
 ;; Theme
 (package! catppuccin-theme)
