@@ -1,8 +1,6 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-(package! pretty-hydra)
-
 
 ;; Theme
 (package! catppuccin-theme)
