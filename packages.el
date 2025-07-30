@@ -11,6 +11,10 @@
 (package! org-web-tools)
 (package! org-remark)
 
+(unpin! org-roam)
+(package! websocket)
+(package! org-roam-ui)
+
 ;; Org-Roam 
 (package! zetteldesk
   :recipe (:host github :repo "Vidianos-Giannitsis/zetteldesk.el" :files ("*.el")))
