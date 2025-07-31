@@ -1,7 +1,7 @@
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
-(package! super-save)
+(package! real-auto-save)
 
 ;; Theme
 (package! catppuccin-theme)
@@ -10,10 +10,8 @@
 (package! org-web-tools)
 (package! org-remark)
 
+;; Org-Roam
 (unpin! org-roam)
 (package! websocket)
 (package! org-roam-ui)
 
-;; Org-Roam 
-(package! zetteldesk
-  :recipe (:host github :repo "Vidianos-Giannitsis/zetteldesk.el" :files ("*.el")))

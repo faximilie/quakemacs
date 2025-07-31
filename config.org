@@ -1,66 +1,146 @@
 #+title: QuakEmacs
-#+description: A doom emacs config
+#+description: A doom emacs config for a confused ID fan.
+#+PROPERTY: header-args :eval no-export :exports code :results none
 
-* Basic emacs stuff
-#+begin_src emacs-lisp :eval no-export :exports code
+* Emacs
+** Emacs server
+Emacs is damn slow! I got more ram than I do patience, so run it in the background
+#+begin_src emacs-lisp
 (server-start)
+(setq org-directory "~/Documents/Notes/")
+#+end_src
+* Vim
+I prefer to use vim, so I like to have as much feature parity with vim as possible so I
+don't get confused.
+** Relative line numbers
+Emacs for some reason has folded lines included by default if you don't use ='visual=.
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'visual)
+#+end_src
+
+* Visuals
+I may have bad vision, but that doesn't mean I don't appreciate some fancy visual flares.
+
+#+begin_src emacs-lisp
 (setq display-line-numbers-type 'visual
       fill-column 90
       global-display-fill-column-indicator-mode t)
-
-(use-package! super-save
-
-  :config
-  (super-save-mode +1)
-  ;(define-advice super-save-command-advice (:after ())
-  ;  (org-roam-db-sync))
-
-  :custom
-  (super-save-auto-save-when-idle t)
-  (super-save-all-buffers t))
-
 #+end_src
 
-#+RESULTS:
-: t
-** Optimizations
-Shamelessly stolen from [[id:bea04db2-f6c2-4742-b35c-407b8ecea86d][My Literate Doom Emacs Configuration]]
-#+begin_src emacs-lisp :eval no-export :exports code
-;; (setq gc-cons-threshold (* 256 1024 1024)
-;;       read-process-output-max (* 4 1024 1024)
-;;       comp-deferred-compilation t
-;;       comp-async-jobs-number 8
-;;
-;;       ;; Garbage collector optimization
-;;       gcmh-idle-delay 5
-;;       gcmh-high-cons-threshold (* 1024 1024 1024)
-;;
-;;       ;; Version control optimization
-;;       vc-handled-backends '(Git)
-;;
-;;       ;; Speed up which key
-;;       which-key-idle-delay 0.2)
+** Auto save
+*** Real auto save
+#+begin_src emacs-lisp
+(use-package! real-auto-save
+  :after org
+  :ensure t
+  :custom
+  (real-auto-save-interval 5)
+  (real-auto-save-silent t)
+  :hook
+  (org-mode . real-auto-save-mode)
+  (markdown-mode . real-auto-save-mode)
+  (text-mode . real-auto-save-mode))
 #+end_src
 
 * Org
-** Packages
-#+begin_src emacs-lisp :eval no-export :exports code
-;;(defn org-web-tools-insert-web-page-as-body ())
+** org-protocol
+#+begin_src emacs-lisp
+(use-package! org-protocol
+  :after org)
+#+end_src
+** org-id
+*** TODO Auto update id locations
+A quick and dirty function to automatically update ids using =org-id-update-id-locations=
+for only the buffer that was saved.
+
+This probably will be slow so we'll run it only if the buffer:
+- Has an associated file name
+  - It will also bind this to avoid it suddenly changing
+- Is an org-mode buffer
+- Has an ID in the first place
+  - We use the =id-regexp= found in [[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][org-id.el]]
+- Is not a remote file
+
+#+begin_src emacs-lisp
+(after! org-id
+  (add-hook
+   'after-save-hook
+   (lambda ()
+     (if-let* ((name (buffer-file-name)))
+       (when (and (derived-mode-p 'org-mode)
+                  (save-excursion
+                    (goto-char (point-min))
+                    ;; 'id-regexp' in org-id.el
+                    (re-search-forward
+                     (rx (seq bol (0+ (any "\t ")) ":ID:" (1+ " ") (not (any " "))))
+                     nil t))
+                  (not (file-remote-p name)))
+         (org-id-update-id-locations '(name) t))))))
+#+end_src
+
+
+*** Setup org-id
+rest of the settings
+#+begin_src emacs-lisp
+(use-package! org-id
+  :after org
+  :custom
+  (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+  (org-id-method 'org)
+  (org-id-include-domain t)
+  (org-id-locations-file (expand-file-name ".org-id-locations" doom-cache-dir)))
+
+#+end_src
+** org-web-tools
+*** URL Property
+What org-mode property will we be using to archive and attach. Defaults to =URL=
+
+#+begin_src emacs-lisp
+(defcustom org-web-tools-archive-property-name "URL"
+  "The `org-mode' property to apply to `org-web-tools-archive-attach'."
+  :group 'org-web-tools-archive
+  :type 'string)
+
+#+end_src
+
+*** Archive and attach an orgmode entry
+:PROPERTIES:
+:ID:       kf060p00fnk0@archlinux.mail-host-address-is-not-set
+:END:
+This function is intended to be run from [[help:org-map-entries][org-map-entries]]
+#+begin_src emacs-lisp
+(defun org-web-tools-archive-attach--entry ()
+  ;; Use if-let to return early for performance
+  (if-let* ((url (org-entry-get org-web-tools-archive-property-name)))
+      (org-web-tools-archive-attach url)))
+#+end_src
+*** Setup the package
+Now to set up org-web-tools with what we have
+#+begin_src emacs-lisp
 (use-package! org-web-tools
   :after org
-  :commands org-web-tools--url-as-readable-org
-  :hook ((org-capture-mode . (lambda () (org-map-entries
-                                         (lambda ()
-                                           (let* ((pom (point))
-                                                  (url (org-entry-get (org-element-at-point
-                                                                       pom)
-                                                                      "URL"))
-                                                 )
-                                                     (org-web-tools-archive-attach url)))
-                                         "URL={.}-ATTACH")
-                              ))))
+  ;; Hook each capture so that we can archive and attach the URL for each org entry
+  :config
+  (defun org-entry-urls (&optional EPOM)
+    (seq-filter (fn! (ffap-url-p (cdr %)))
+    (org-entry-properties EPOM)))
+  (add-hook! 'org-capture-prepare-finalize-hook
+    (fn!
+     (save-excursion (goto-char (point-min)) (region-))
+     (org-map-entries
+      (fn! (-> (seq-filter (fn! (-> % cdr ffap-url-p )) org-entry-properties) cdr org-web-tools-archive-attach)
 
+      (format "-%s" org-attach-auto-tag))
+     )))
 
+(mapcar (fn! (org-url-p %)) (org-entry-properties))
+(mapcar (lambda (elt) (when )) (org-entry-properties))
+
+(seq-filter (fn! (or (car %)
+                  (org-url-p (cdr %))))
+#+end_src
+** org-transclusion
+#+begin_src emacs-lisp
 (use-package! org-transclusion
  :after org
  :init
@@ -68,25 +148,67 @@ Shamelessly stolen from [[id:bea04db2-f6c2-4742-b35c-407b8ecea86d][My Literate D
   :leader
   :prefix "n"
   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
-
-(use-package! org-protocol
-  :after org)
+#+end_src
+** Org archive
+*** Complete tasks on archive
+Automatically close tasks so I don't have unfinished tasks in my archive.
+#+begin_src emacs-lisp
+(after! org
+  (setq org-archive-mark-done t))
 #+end_src
 
+** Source code blocks
+*** Autosave src blocks
+I like using =org-edit-special= but hate accidentally closing it before saving.
+**** Idle delay
+Set =org-edit-src-auto-save-idle-delay= to automatically save after N seconds.
+#+begin_src emacs-lisp
+(after! org
+  (let ((auto-save-delay 5))
+    (setq org-edit-src-auto-save-idle-delay auto-save-delay
+          org-edit-src-turn-on-auto-save (not auto-save-delay))))
+#+end_src
+**** Turn on auto-save
+=org-edit-src-auto-save-idle-delay= and =org-edit-src-turn-on-auto-save= are mutually
+exclusive so we'll ensure that if the delay is set, autosave is set to =nil=
+#+begin_src emacs-lisp
+(after! org (setq org-edit-src-turn-on-auto-save
+                  (> org-edit-src-auto-save-idle-delay 0)))
+#+end_src
 ** Files and directories
-#+begin_src emacs-lisp :eval no-export :exports code
+#+begin_src emacs-lisp :eval no-export :exports code :results none
 (use-package! org
   :custom
-  (org-directory "~/Documents/Notes/")
+
   (org-archive-location "~/Documents/Notes/Archive/%s_archive::")
   (org-default-notes-file (concat org-directory "/inbox.org"))
   (org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
   (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
                              "IDEA(i)" "|" "DONE(d)" "KILL(k)"))))
 #+end_src
+** Structure templates
+I like to write code snippets a lot
+*** Emacs Lisp
+For this literate config 😻
+#+begin_src emacs-lisp
+(after! org
+  (add-to-list
+   'org-structure-template-alist
+   '("L" . "src emacs-lisp")))
+#+end_src
+
+
+*** Bash
+I write a lot of shell scripts with literate devops!
+#+begin_src emacs-lisp
+(add-to-list
+   'org-structure-template-alist
+   '("b" . "src bash"))
+#+end_src
+
 
 ** capture templates
-#+begin_src emacs-lisp :eval no-export :exports code
+#+begin_src emacs-lisp :eval no-export :exports code :results none
 (after! org
   (setq org-capture-templates
         '(("M" "Meeting minutes" entry
@@ -156,7 +278,7 @@ Today I learned that %^{Title} %?")))
 
 
 ** Org roam
-#+begin_src emacs-lisp :eval no-export :exports code
+#+begin_src emacs-lisp :eval no-export :exports code :results none
 (use-package! org-roam
   :custom
   (org-roam-completion-everywhere t)
@@ -183,6 +305,3 @@ Today I learned that %^{Title} %?")))
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
 #+end_src
-
-#+RESULTS:
-: org-roam-ui
