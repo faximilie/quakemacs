@@ -368,7 +368,7 @@ PATH should be a topic that can be thrown at the man command."
 :ID:       y43kk3204ok0@archlinux.mail-host-address-is-not-set
 :END:
 Once we have the code to support linking to man pages, we should add it via the
-[[help:org-link-set-parameters][org-link-set-parameters]] roam:orgmode function.
+[[help:org-link-set-parameters][org-link-set-parameters]] orgmode function.
 #+begin_src emacs-lisp
 (after! ol
   (org-link-set-parameters
