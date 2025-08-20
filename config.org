@@ -63,9 +63,7 @@ rest of the settings
 #+end_src
 *** Auto update id locations
 A quick and dirty function to automatically update ids using =org-id-update-id-locations=
-for only the buffer that was saved. It redefines and uses the locally scoped
-[[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][id-regexp in org-id.el]]
-#+transclude: [[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][id-regexp in org-id.el]] :lines -3 :src emacs-lisp
+for only the buffer that was saved.
 
 This probably will be slow so we'll run it only if the buffer:
 - Has an associated file name
@@ -73,6 +71,7 @@ This probably will be slow so we'll run it only if the buffer:
 - Is an org-mode buffer
 - Has an ID in the first place
   - We use the =id-regexp= found in [[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][org-id.el]]
+    #+transclude: [[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][id-regexp in org-id.el]] :lines -3 :src emacs-lisp
 - Is not a remote file
 
 #+begin_src emacs-lisp
