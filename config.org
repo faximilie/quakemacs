@@ -377,3 +377,16 @@ Once we have the code to support linking to man pages, we should add it via the
    :export #'org-man-export
    :store #'org-man-store-link))
 #+end_src
+* Coding
+** LSPs
+*** Copilot
+#+begin_src emacs-lisp
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind ((kbd "C-TAB") #'copilot-accept-completion)
+  (add-to-list 'copilot-indentation-alist '(prog-mode 2))
+  (add-to-list 'copilot-indentation-alist '(org-mode 2))
+  (add-to-list 'copilot-indentation-alist '(text-mode 2))
+  (add-to-list 'copilot-indentation-alist '(closure-mode 2))
+  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode 2)))
+#+end_src
