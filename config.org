@@ -122,19 +122,8 @@ Now to set up org-web-tools with what we have
     (seq-filter (fn! (ffap-url-p (cdr %)))
     (org-entry-properties EPOM)))
   (add-hook! 'org-capture-prepare-finalize-hook
-    (fn!
-     (save-excursion (goto-char (point-min)) (region-))
      (org-map-entries
-      (fn! (-> (seq-filter (fn! (-> % cdr ffap-url-p )) org-entry-properties) cdr org-web-tools-archive-attach)
-
-      (format "-%s" org-attach-auto-tag))
-     )))
-
-(mapcar (fn! (org-url-p %)) (org-entry-properties))
-(mapcar (lambda (elt) (when )) (org-entry-properties))
-
-(seq-filter (fn! (or (car %)
-                  (org-url-p (cdr %))))
+      (fn! (-> (seq-filter (fn! (-> % cdr ffap-url-p )) org-entry-properties) cdr org-web-tools-archive-attach)))))
 #+end_src
 ** org-transclusion
 #+begin_src emacs-lisp
