@@ -49,9 +49,24 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   :after org)
 #+end_src
 ** org-id
-*** TODO Auto update id locations
+*** Setup org-id
+rest of the settings
+#+begin_src emacs-lisp
+(use-package! org-id
+  :after org
+  :hook (after-save . org-id--update-id-after-save-hook)
+  :custom
+  (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+  (org-id-method 'org)
+  (org-id-include-domain t)
+  (org-id-locations-file (expand-file-name ".org-id-locations" doom-cache-dir)))
+
+#+end_src
+*** Auto update id locations
 A quick and dirty function to automatically update ids using =org-id-update-id-locations=
-for only the buffer that was saved.
+for only the buffer that was saved. It redefines and uses the locally scoped
+[[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][id-regexp in org-id.el]]
+#+transclude: [[file:~/.config/emacs/.local/straight/repos/org/lisp/org-id.el::id-regexp][id-regexp in org-id.el]] :lines -3 :src emacs-lisp
 
 This probably will be slow so we'll run it only if the buffer:
 - Has an associated file name
@@ -62,35 +77,19 @@ This probably will be slow so we'll run it only if the buffer:
 - Is not a remote file
 
 #+begin_src emacs-lisp
-(after! org-id
-  (add-hook
-   'after-save-hook
-   (lambda ()
-     (if-let* ((name (buffer-file-name)))
-       (when (and (derived-mode-p 'org-mode)
-                  (save-excursion
-                    (goto-char (point-min))
-                    ;; 'id-regexp' in org-id.el
-                    (re-search-forward
-                     (rx (seq bol (0+ (any "\t ")) ":ID:" (1+ " ") (not (any " "))))
-                     nil t))
-                  (not (file-remote-p name)))
-         (org-id-update-id-locations '(name) t))))))
+(defun org-id--update-id-after-save-hook ()
+  (if-let* ((name (buffer-file-name)))
+      (when (and (derived-mode-p 'org-mode)
+                 (save-excursion
+                   (goto-char (point-min))
+                   ;; 'id-regexp' in org-id.el
+                   (re-search-forward
+                    (rx (seq bol (0+ (any "\t ")) ":ID:" (1+ " ") (not (any " "))))
+                    nil t))
+                 (not (file-remote-p name)))
+        (org-id-update-id-locations '(name) t))))
 #+end_src
 
-
-*** Setup org-id
-rest of the settings
-#+begin_src emacs-lisp
-(use-package! org-id
-  :after org
-  :custom
-  (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
-  (org-id-method 'org)
-  (org-id-include-domain t)
-  (org-id-locations-file (expand-file-name ".org-id-locations" doom-cache-dir)))
-
-#+end_src
 ** org-web-tools
 *** URL Property
 What org-mode property will we be using to archive and attach. Defaults to =URL=
