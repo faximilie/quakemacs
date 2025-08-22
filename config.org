@@ -179,7 +179,8 @@ exclusive so we'll ensure that if the delay is set, autosave is set to =nil=
   (org-default-notes-file (concat org-directory "/inbox.org"))
   (org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
   (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
-                             "IDEA(i)" "|" "DONE(d)" "KILL(k)"))))
+                             "IDEA(i)" "|" "DONE(d)" "KILL(k)")))
+  (org-download-screenshot-method " /usr/bin/grimshot save anything \"%s\""))
 #+end_src
 ** Structure templates
 I like to write code snippets a lot
