@@ -2,6 +2,15 @@
 #+description: A doom emacs config for a confused ID fan.
 #+PROPERTY: header-args :eval no-export :exports code :results none
 
+* Helper functions
+** Regex string functions
+*** capture group
+#+begin_src emacs-lisp
+(defun string-match-group (regexp string &optional group)
+  "Return the data matched by capture `group' of `regexp' in `string'."
+  (save-match-data (string-match regexp string)
+                   (match-string (or group 0) string)))
+#+end_src
 * Emacs
 ** Emacs server
 Emacs is damn slow! I got more ram than I do patience, so run it in the background
