@@ -334,13 +334,6 @@ PATH should be a topic that can be thrown at the man command."
   (defun org-man-export (link description format)
     "Export a man page link from Org files."
     (let* ((regexp "\\(\\w+\\)(\\([0-9]+\\))")
-           ;; TODO helper function for better matching strings
-           (topic (progn
-                    (string-match regexp link)
-                    (match-string 1 link)))
-           (section (progn
-                      (string-match regexp link)
-                      (match-string 2 link)))
            (path (format "https://man7.org/linux/man-pages/%s/%s"
                          (concat topic section)
                          (format "%s.%s.html" topic section)))
@@ -352,6 +345,8 @@ PATH should be a topic that can be thrown at the man command."
         (`texinfo (format "@uref{%s,%s}" path desc))
         (`ascii (format "%s (%s)" desc path))
         (t path))))
+         (topic (string-match-group regexp link 1))
+         (section (string-match-group regexp link 2))
 #+end_src
 **** Add the link type
 :PROPERTIES:
