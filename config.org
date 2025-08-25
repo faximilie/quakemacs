@@ -279,7 +279,14 @@ Today I learned that %^{Title} %?")))
       :unnarrowed t)))
   (org-roam-directory (file-name-concat org-directory "Wiki"))
   (org-roam-dailies-directory "../Journal")
-  )
+  :config
+  ;; TODO optimize/cache this and also clean up code
+  (progn
+    (defun org-roam--refile-targets ()
+      (append (directory-files org-roam-dailies-directory t "^[0-9]+-[0-9\-]+\.org$")
+              (directory-files org-roam-directory t "^[0-9]+-[[:alpha:]]+\.org$")))
+    (add-to-list 'org-refile-targets
+                 '(org-roam--refile-targets :maxlevel . 2))))
 (use-package! org-roam-protocol)
 (use-package! websocket
   :ensure t)
