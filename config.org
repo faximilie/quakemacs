@@ -51,6 +51,14 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   (text-mode . real-auto-save-mode))
 #+end_src
 * Org
+
+
+** org-pomodoro
+I like time tracking
+#+begin_src emacs-lisp
+(use-package! org-pomodoro
+  :after org)
+#+end_src
 ** org-protocol
 #+begin_src emacs-lisp
 (use-package! org-protocol
