@@ -134,13 +134,12 @@ Now to set up org-web-tools with what we have
 (use-package! org-web-tools
   :after org
   ;; Hook each capture so that we can archive and attach the URL for each org entry
-  :init
-  (add-hook! 'org-capture-prepare-finalize-hook
-     (org-web-tools-archive-attach
-          (cdar (org-map-entries
-                 (fn! (seq-find
-                       (fn! (ffap-url-p (nthcdr 1 %)))
-                       (org-entry-properties))))))))
+  :config
+  (add-hook!
+   'org-capture-prepare-finalize-hook
+   (org-map-entries (org-web-tools-archive-attach
+                     (org-entry-properties (point)
+                                           org-web-tools-archive-property-name)))))
 #+end_src
 ** org-transclusion
 #+begin_src emacs-lisp
