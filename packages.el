@@ -14,6 +14,3 @@
 (unpin! org-roam)
 (package! websocket)
 (package! org-roam-ui)
-
-(package! copilot
-  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
