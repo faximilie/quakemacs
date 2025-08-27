@@ -10,6 +10,8 @@
 (package! org-web-tools)
 (package! org-remark)
 
+(package! org-timeline)
+(package! org-super-agenda)
 ;; Org-Roam
 (unpin! org-roam)
 (package! websocket)
