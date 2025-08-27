@@ -287,6 +287,8 @@ Today I learned that %^{Title} %?")))
   (org-roam-directory (file-name-concat org-directory "Wiki"))
   (org-roam-dailies-directory "../Journal")
   :config
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode)
   ;; TODO optimize/cache this and also clean up code
   (progn
     (defun org-roam--refile-targets ()
