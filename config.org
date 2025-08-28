@@ -51,7 +51,8 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   (text-mode . real-auto-save-mode))
 #+end_src
 * Org
-** ox-typst
+** Packages
+*** ox-typst
 I want to be able to write and publish things like slidedeck, whitepapers, and
 blog posts all from orgmode. Typst will let me render PDFs and HTML for both
 whitepapers and slidedeck respectively.
@@ -61,19 +62,19 @@ whitepapers and slidedeck respectively.
   :vc (:url "https://github.com/jmpunkt/ox-typst.git"
             :rev :newest))
 #+end_src
-** org-pomodoro
+*** org-pomodoro
 I like time tracking
 #+begin_src emacs-lisp
 (use-package! org-pomodoro
   :after org)
 #+end_src
-** org-protocol
+*** org-protocol
 #+begin_src emacs-lisp
 (use-package! org-protocol
   :after org)
 #+end_src
-** org-id
-*** Setup org-id
+*** org-id
+**** Setup org-id
 rest of the settings
 #+begin_src emacs-lisp
 (use-package! org-id
@@ -86,7 +87,7 @@ rest of the settings
   (org-id-locations-file (expand-file-name ".org-id-locations" doom-cache-dir)))
 
 #+end_src
-*** Auto update id locations
+**** Auto update id locations
 A quick and dirty function to automatically update ids using =org-id-update-id-locations=
 for only the buffer that was saved.
 
@@ -113,8 +114,8 @@ This probably will be slow so we'll run it only if the buffer:
         (org-id-update-id-locations '(name) t))))
 #+end_src
 
-** org-web-tools
-*** URL Property
+*** org-web-tools
+**** URL Property
 What org-mode property will we be using to archive and attach. Defaults to =URL=
 
 #+begin_src emacs-lisp
@@ -125,7 +126,7 @@ What org-mode property will we be using to archive and attach. Defaults to =URL=
 
 #+end_src
 
-*** Archive and attach an orgmode entry
+**** Archive and attach an orgmode entry
 :PROPERTIES:
 :ID:       kf060p00fnk0@archlinux.mail-host-address-is-not-set
 :END:
@@ -136,7 +137,7 @@ This function is intended to be run from [[help:org-map-entries][org-map-entries
   (if-let* ((url (org-entry-get org-web-tools-archive-property-name)))
       (org-web-tools-archive-attach url)))
 #+end_src
-*** Setup the package
+**** Setup the package
 Now to set up org-web-tools with what we have
 #+begin_src emacs-lisp
 (use-package! org-web-tools
@@ -149,7 +150,7 @@ Now to set up org-web-tools with what we have
                      (org-entry-properties (point)
                                            org-web-tools-archive-property-name)))))
 #+end_src
-** org-transclusion
+*** org-transclusion
 #+begin_src emacs-lisp
 (use-package! org-transclusion
  :after org
