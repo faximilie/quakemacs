@@ -284,43 +284,6 @@ Today I learned that %^{Title} %?")))
   )
 #+end_src
 
-** Org roam
-#+begin_src emacs-lisp
-(use-package! org-roam
-  :custom
-  (org-roam-completion-everywhere t)
-  (org-roam-capture-ref-templates
-   '(("w" "ref" plain "%(replace- org-web-tools--url-as-readable-org \"${ref}\")"
-      :target (file+head "${slug}.org" "#+title: ${title}\n")
-      :unnarrowed t)))
-  (org-roam-directory (file-name-concat org-directory "Wiki"))
-  (org-roam-dailies-directory "../Journal")
-  :config
-  (require 'org-roam-dailies)
-  (org-roam-db-autosync-mode)
-  ;; TODO optimize/cache this and also clean up code
-  (progn
-    (defun org-roam--refile-targets ()
-      (append (directory-files org-roam-dailies-directory t "^[0-9]+-[0-9\-]+\.org$")
-              (directory-files org-roam-directory t "^[0-9]+-[[:alpha:]]+\.org$")))
-    (add-to-list 'org-refile-targets
-                 '(org-roam--refile-targets :maxlevel . 2))))
-(use-package! org-roam-protocol)
-(use-package! websocket
-  :ensure t)
-
-(use-package! org-roam-ui
-  :after org-roam ;; or :after org
-  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-  ;;         a hookable mode anymore, you're advised to pick something yourself
-  ;;         if you don't care about startup time, use
-  ;;  :hook (after-init . org-roam-ui-mode)
-  :custom
-  (org-roam-ui-sync-theme t)
-  (org-roam-ui-follow t)
-  (org-roam-ui-update-on-save t)
-  (org-roam-ui-open-on-start t))
-#+end_src
 ** Custom [[https://orgmode.org/manual/Hyperlinks.html][hyperlinks]]
 *** man
 I like being able to quickly link to [[man:man(1)][man(1)]] pages, so let's set them up.
@@ -385,6 +348,43 @@ Once we have the code to support linking to man pages, we should add it via the
    :follow #'org-man-open
    :export #'org-man-export
    :store #'org-man-store-link))
+#+end_src
+* Org roam
+#+begin_src emacs-lisp
+(use-package! org-roam
+  :custom
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-ref-templates
+   '(("w" "ref" plain "%(replace- org-web-tools--url-as-readable-org \"${ref}\")"
+      :target (file+head "${slug}.org" "#+title: ${title}\n")
+      :unnarrowed t)))
+  (org-roam-directory (file-name-concat org-directory "Wiki"))
+  (org-roam-dailies-directory "../Journal")
+  :config
+  (require 'org-roam-dailies)
+  (org-roam-db-autosync-mode)
+  ;; TODO optimize/cache this and also clean up code
+  (progn
+    (defun org-roam--refile-targets ()
+      (append (directory-files org-roam-dailies-directory t "^[0-9]+-[0-9\-]+\.org$")
+              (directory-files org-roam-directory t "^[0-9]+-[[:alpha:]]+\.org$")))
+    (add-to-list 'org-refile-targets
+                 '(org-roam--refile-targets :maxlevel . 2))))
+(use-package! org-roam-protocol)
+(use-package! websocket
+  :ensure t)
+
+(use-package! org-roam-ui
+  :after org-roam ;; or :after org
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
 #+end_src
 * Coding
 ** LSPs
