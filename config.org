@@ -51,8 +51,16 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   (text-mode . real-auto-save-mode))
 #+end_src
 * Org
-
-
+** ox-typst
+I want to be able to write and publish things like slidedeck, whitepapers, and
+blog posts all from orgmode. Typst will let me render PDFs and HTML for both
+whitepapers and slidedeck respectively.
+#+begin_src emacs-lisp
+(use-package! ox-typst
+  :after ox
+  :vc (:url "https://github.com/jmpunkt/ox-typst.git"
+            :rev :newest))
+#+end_src
 ** org-pomodoro
 I like time tracking
 #+begin_src emacs-lisp

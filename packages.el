@@ -9,6 +9,7 @@
 (package! org-transclusion)
 (package! org-web-tools)
 (package! org-remark)
+(package! ox-typst)
 
 (package! org-timeline)
 (package! org-super-agenda)
