@@ -59,8 +59,8 @@ whitepapers and slidedeck respectively.
 #+begin_src emacs-lisp
 (use-package! ox-typst
   :after ox
-  :vc (:url "https://github.com/jmpunkt/ox-typst.git"
-            :rev :newest))
+  :config
+  (require 'ox-typst))
 #+end_src
 *** org-pomodoro
 I like time tracking
