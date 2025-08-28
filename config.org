@@ -351,6 +351,9 @@ PATH should be a topic that can be thrown at the man command."
   (defun org-man-export (link description format)
     "Export a man page link from Org files."
     (let* ((regexp "\\(\\w+\\)(\\([0-9]+\\))")
+           (topic (string-match-group regexp link 1))
+           (section (string-match-group regexp link 2))
+           (path (format "https://linux.die.net/man/%s/%s" topic section))
            (desc (or description link)))
       (pcase format
         (`html (format "<a target=\"_blank\" href=\"%s\">%s</a>" path desc))
@@ -359,9 +362,6 @@ PATH should be a topic that can be thrown at the man command."
         (`texinfo (format "@uref{%s,%s}" path desc))
         (`ascii (format "%s (%s)" desc path))
         (t path))))
-         (topic (string-match-group regexp link 1))
-         (section (string-match-group regexp link 2))
-         (path (format "https://linux.die.net/man/%s/%s" topic section))
 #+end_src
 **** Add the link type
 :PROPERTIES:
