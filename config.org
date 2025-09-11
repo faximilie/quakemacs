@@ -131,7 +131,6 @@ This probably will be slow so we'll run it only if the buffer:
 *** org-web-tools
 **** URL Property
 What org-mode property will we be using to archive and attach. Defaults to =URL=
-
 #+begin_src emacs-lisp
 (defcustom org-web-tools-archive-property-name "URL"
   "The `org-mode' property to apply to `org-web-tools-archive-attach'."
@@ -139,23 +138,47 @@ What org-mode property will we be using to archive and attach. Defaults to =URL=
   :type 'string)
 
 #+end_src
+**** Regexp for https? link
+This modified regexp from [[file:~/.config/emacs/.local/straight/repos/org-web-tools/org-web-tools.el::defun org-web-tools-convert-links-to-page-entries (][org-web-tools-convert-links-to-page-entries]] to match only HTTP/HTTPS links
 
-**** Archive and attach an orgmode entry
+#+begin_src emacs-lisp
+(defconst org-web-tools--http-link-regexp (rx word-start "http" (? "s") ":"
+                                              (+ (not (| space "]" "["))) word-end)
+  "Modifed from `org-web-tools-convert-links-to-page-entries' to match whole line")
+#+end_src
+
+**** Attach and Insert entry through help:org-capture-prepare-finalize-hook
 :PROPERTIES:
 :ID:       kf060p00fnk0@archlinux.mail-host-address-is-not-set
 :END:
 This function is intended to be run from [[help:org-map-entries][org-map-entries]]
 #+begin_src emacs-lisp
-(defun org-web-tools-archive-attach--entry ()
-  ;; Use if-let to return early for performance
-  (if-let* ((url (org-entry-get org-web-tools-archive-property-name)))
-      (org-web-tools-archive-attach url)))
+(defun org-web-tools--get-links (&optional pom)
+  (org-with-point-at pom
+    (cl-loop while (re-search-forward org-link-any-re
+                                      (save-mark-and-excursion
+                                        (org-get-next-sibling))
+                                      'no-error)
+             collect (or (match-string-no-properties 2)
+                         (match-string-no-properties 0)))))
+
+
+
+(defun org-web-tools--org-capture-prepare-finalize-hook (&optional pom)
+  "A hook to find all links in an orgmode entry and call
+ `org-web-tools-archive-attach' and `org-web-tools--url-as-readable-org'"
+  (org-map-entries
+   (fn! (-some--> (seq-uniq (org-web-tools--get-links))
+          (seq-filter (fn! (string-match-p org-web-tools--http-link-regexp %)) it)
+          (seq-map #'org-web-tools-archive-attach it))))
+  (format "-%s"
+           org-attach-auto-tag))
 #+end_src
 **** Setup the package
 Now to set up org-web-tools with what we have
 #+begin_src emacs-lisp
 (use-package! org-web-tools
-  :after org
+  :after org)
   ;; Hook each capture so that we can archive and attach the URL for each org entry
   :config
   (add-hook!
