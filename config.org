@@ -51,6 +51,11 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   (text-mode . real-auto-save-mode))
 #+end_src
 * Org
+#+begin_src emacs-lisp
+(use-package! org
+  :ensure org-plus-contrib
+  )
+#+end_src
 ** Packages
 *** ox-typst
 I want to be able to write and publish things like slidedeck, whitepapers, and
@@ -188,15 +193,17 @@ exclusive so we'll ensure that if the delay is set, autosave is set to =nil=
 #+end_src
 ** Files and directories
 #+begin_src emacs-lisp
-(use-package! org
-  :custom
-
-  (org-archive-location "~/Documents/Notes/Archive/%s_archive::")
-  (org-default-notes-file (concat org-directory "/inbox.org"))
-  (org-agenda-files (directory-files-recursively org-directory "^[A-Za-z\/~_-]*\.org$"))
-  (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)" "STRT(s)" "WAIT(w)" "HOLD(h)"
-                             "IDEA(i)" "|" "DONE(d)" "KILL(k)")))
-  (org-download-screenshot-method " /usr/bin/grimshot save anything \"%s\""))
+(after! org
+  (setq! org-archive-location "~/Documents/Notes/Archive/%s_archive::"
+         org-default-notes-file (concat org-directory
+                                        "/inbox.org")
+         org-agenda-files (directory-files-recursively org-directory
+                                                       "^[A-Za-z\/~_-]*\.org$")
+         org-todo-keywords '((sequence
+                              "TODO(t)" "NEXT(n)" "PROJ(p)" "LOOP(r)"
+                              "STRT(s)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "|"
+                              "DONE(d)" "KILL(k)"))
+         org-download-screenshot-method "/usr/bin/grimshot save anything \"%s\""))
 #+end_src
 ** Structure templates
 I like to write code snippets a lot
