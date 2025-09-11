@@ -18,6 +18,15 @@ Emacs is damn slow! I got more ram than I do patience, so run it in the backgrou
 (server-start)
 (setq org-directory "~/Documents/Notes/")
 #+end_src
+** Email
+#+begin_src emacs-lisp
+(setq! user-mail-address (or (getenv "EMAIL")
+                             (format "%s@%s.%s"
+                                     (user-login-name)
+                                     (system-name)
+                                     "faximili.me")))
+#+end_src
+
 * Vim
 I prefer to use vim, so I like to have as much feature parity with vim as possible so I
 don't get confused.
