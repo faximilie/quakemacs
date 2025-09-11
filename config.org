@@ -165,6 +165,15 @@ Now to set up org-web-tools with what we have
   :prefix "n"
   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 #+end_src
+*** org-contacts
+#+begin_src emacs-lisp
+(use-package org-contacts
+  :after org
+  :custom
+  org-contacts-files
+  (directory-files org-directory t (rx bol (| "c" "C") "ontacts" ".org" eol) t 1))
+#+end_src
+
 ** Org archive
 *** Complete tasks on archive
 Automatically close tasks so I don't have unfinished tasks in my archive.
