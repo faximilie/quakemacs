@@ -25,6 +25,10 @@ Emacs is damn slow! I got more ram than I do patience, so run it in the backgrou
                                      (user-login-name)
                                      (system-name)
                                      "faximili.me")))
+* Doom
+** Change alt leader key
+#+begin_src emacs-lisp
+(setq doom-leader-alt-key "C-SPC")
 #+end_src
 
 * Vim
