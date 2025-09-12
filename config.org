@@ -269,6 +269,9 @@ I write a lot of shell scripts with literate devops!
    'org-structure-template-alist
    '("b" . "src bash"))
 #+end_src
+** TODO keywords
+SCHEDULED: <2025-09-12 Fri>
+help:org-todo-keywords
 
 ** capture templates
 #+begin_src emacs-lisp
