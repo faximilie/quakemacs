@@ -26,6 +26,13 @@ Emacs is damn slow! I got more ram than I do patience, so run it in the backgrou
                                      (system-name)
                                      "faximili.me")))
 * Doom
+** Consolidate [[file:packages.el][packages.el]]
+I want to have my [[file:packages.el][packages.el]] defined in [[file:config.org][config.org]] so we will ensure it's
+boilerplate exists.
+#+begin_src emacs-lisp :tangle packages.el
+;; -*- no-byte-compile: t; -*-
+;;; $DOOMDIR/packages.el
+#+end_src
 ** Change alt leader key
 #+begin_src emacs-lisp
 (setq doom-leader-alt-key "C-SPC")
@@ -51,6 +58,9 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
 
 ** Auto save
 *** Real auto save
+#+begin_src emacs-lisp :tangle packages.el
+(package! real-auto-save)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! real-auto-save
   :after org
@@ -64,6 +74,10 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
   (text-mode . real-auto-save-mode))
 #+end_src
 * Org
+#+begin_src emacs-lisp :tangle packages.el
+;; Misc packages
+(package! org-remark)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! org
   :ensure org-plus-contrib
@@ -74,6 +88,9 @@ I may have bad vision, but that doesn't mean I don't appreciate some fancy visua
 I want to be able to write and publish things like slidedeck, whitepapers, and
 blog posts all from orgmode. Typst will let me render PDFs and HTML for both
 whitepapers and slidedeck respectively.
+#+begin_src emacs-lisp :tangle packages.el
+(package! ox-typst)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! ox-typst
   :after ox
@@ -180,18 +197,24 @@ This function is intended to be run from [[help:org-map-entries][org-map-entries
 #+end_src
 **** Setup the package
 Now to set up org-web-tools with what we have
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-web-tools)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! org-web-tools
   :after org)
   ;; Hook each capture so that we can archive and attach the URL for each org entry
-  :config
-  (add-hook!
-   'org-capture-prepare-finalize-hook
-   (org-map-entries (org-web-tools-archive-attach
-                     (org-entry-properties (point)
-                                           org-web-tools-archive-property-name)))))
+  ;; :config
+  ;; (add-hook!
+  ;;  'org-capture-prepare-finalize-hook
+  ;;  (org-map-entries (org-web-tools-archive-attach
+  ;;                    (org-entry-properties (point)
+  ;;                                          org-web-tools-archive-property-name))))
 #+end_src
 *** org-transclusion
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-transclusion)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! org-transclusion
  :after org
@@ -202,6 +225,9 @@ Now to set up org-web-tools with what we have
   :desc "Org Transclusion Mode" "t" #'org-transclusion-mode))
 #+end_src
 *** org-contacts
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-contacts)
+#+end_src
 #+begin_src emacs-lisp
 (use-package org-contacts
   :after org
@@ -210,6 +236,22 @@ Now to set up org-web-tools with what we have
   (directory-files org-directory t (rx bol (| "c" "C") "ontacts" ".org" eol) t 1))
 #+end_src
 
+*** org-timeline
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-timeline)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-timeline
+  :after org)
+#+end_src
+*** org-super-agenda
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-super-agenda)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-super-agenda
+  :after org)
+#+end_src
 ** Org archive
 *** Complete tasks on archive
 Automatically close tasks so I don't have unfinished tasks in my archive.
@@ -405,6 +447,12 @@ Once we have the code to support linking to man pages, we should add it via the
    :store #'org-man-store-link))
 #+end_src
 * Org roam
+#+begin_src emacs-lisp :tangle packages.el
+;; Org-Roam
+(unpin! org-roam)
+(package! websocket)
+(package! org-roam-ui)
+#+end_src
 #+begin_src emacs-lisp
 (use-package! org-roam
   :custom
