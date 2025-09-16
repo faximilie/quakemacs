@@ -163,9 +163,11 @@ What org-mode property will we be using to archive and attach. Defaults to =URL=
 This modified regexp from [[file:~/.config/emacs/.local/straight/repos/org-web-tools/org-web-tools.el::defun org-web-tools-convert-links-to-page-entries (][org-web-tools-convert-links-to-page-entries]] to match only HTTP/HTTPS links
 
 #+begin_src emacs-lisp
-(defconst org-web-tools--http-link-regexp (rx word-start "http" (? "s") ":"
-                                              (+ (not (| space "]" "["))) word-end)
-  "Modifed from `org-web-tools-convert-links-to-page-entries' to match whole line")
+(defconst org-web-tools--http-link-regexp (rx word-start
+                                              (group "http" (? "s") "://"
+                                                     (+ (not (| space "]" "["))))
+                                              word-end)
+  "Modifed from `org-web-tools-convert-links-to-page-entries' to match whole word")
 #+end_src
 
 **** Attach and Insert entry through help:org-capture-prepare-finalize-hook
