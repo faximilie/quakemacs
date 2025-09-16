@@ -3,6 +3,30 @@
 #+PROPERTY: header-args :eval no-export :exports code :results none
 
 * Helper functions
+*** with-regexp-matches macro
+:PROPERTIES:
+:ID:       15qisi814pk0@archlinux.mail-host-address-is-not-set
+:END:
+Why this is not a built in macro is beyond me
+#+begin_src emacs-lisp
+(cl-defmacro with-regexp-matches
+    (regexp pom bound &rest body )
+  "Run `body' on `count' matches of `regexp' between `pom' and `bound'.
+If `pom' is nil use `point', if marker swap to buffer, otherwise use `current-buffer'.
+If `count' is nil, then match all. If `error' is non-nil throw an error.
+`bound' is assumed to be a valid target of `goto-char'"
+  (cl-with-gensyms (beg end)
+    `(let ((,beg ,pom)
+           (,end ,bound))
+       (save-mark-and-excursion
+         (with-current-buffer (if (markerp ,beg)
+                                  (marker-buffer ,beg)
+                                (current-buffer))
+           (goto-char (or ,beg (point)))
+           (cl-loop
+            while (re-search-forward ,regexp ,bound 'no-error)
+            collect (progn ,@body)))))))
+#+end_src
 #+end_src
 * Emacs
 ** Emacs server
