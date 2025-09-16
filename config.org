@@ -27,7 +27,24 @@ If `count' is nil, then match all. If `error' is non-nil throw an error.
             while (re-search-forward ,regexp ,bound 'no-error)
             collect (progn ,@body)))))))
 #+end_src
+*** regexp-map
+This is a wrapper around [[id:15qisi814pk0@archlinux.mail-host-address-is-not-set][with-regexp-matches macro]] for functions
+#+begin_src emacs-lisp
+(defun regexp-map-region (function regexp &optional pom bound)
+  "Maps `FUNCTION' to `WITH-REGEXP-MATCHES' with `REGEXP' from `POM' to `BOUND'.
+`FUNCTION' is passed 2 parameters, the whole match, then all group matches.
+In the form of (`match-string-no-properties' . (`match-beginning' . `match-end')
+If `POM' is nil, use `point-marker'. If `BOUND' is nil use `point-max-marker'"
+  (with-regexp-matches
+   regexp
+   (or pom (point-marker)) bound
+   (cl-loop for (beg end) in (seq-split (match-data) 2)
+            collect (cons (buffer-substring-no-properties beg end)
+                          (cons beg end))
+            into matches
+            finally return (funcall function (car matches) (cdr matches)))))
 #+end_src
+
 * Emacs
 ** Emacs server
 Emacs is damn slow! I got more ram than I do patience, so run it in the background
