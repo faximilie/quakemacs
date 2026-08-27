@@ -14,6 +14,5 @@
 (package! org-timeline)
 (package! org-super-agenda)
 ;; Org-Roam
-(unpin! org-roam)
 (package! websocket)
 (package! org-roam-ui)
