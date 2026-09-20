@@ -288,6 +288,16 @@ Now to set up org-web-tools with what we have
 (use-package! org-super-agenda
   :after org)
 #+end_src
+*** org-nix-shell
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-nix-shell)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-nix-shell
+  :after org
+  :hook (org-mode . org-nix-shell-mode))
+#+end_src
+
 ** Org archive
 *** Complete tasks on archive
 Automatically close tasks so I don't have unfinished tasks in my archive.
