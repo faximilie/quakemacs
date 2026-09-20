@@ -16,3 +16,5 @@
 ;; Org-Roam
 (package! websocket)
 (package! org-roam-ui)
+
+(package! org-nix-shell)
